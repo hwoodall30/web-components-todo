@@ -13,7 +13,7 @@ const style = /*css*/ `
 
     :host {
       width: 60%;
-      min-width: 300px;
+      min-width: 330px;
       height: 50%;
       min-height: 500px;
       display: grid;

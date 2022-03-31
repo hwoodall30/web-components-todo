@@ -54,7 +54,7 @@ const content = /*html*/ `
         <li class="Todo">
           <slot name="value"></slot>
           <span>
-           <img src="assets/delete.svg" class="Delete" alt="Delete"/>
+           <img src="/delete.svg" class="Delete" alt="Delete"/>
           </span>
         </li>
         `;
