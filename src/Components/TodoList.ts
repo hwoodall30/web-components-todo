@@ -13,7 +13,9 @@ const style = /*css*/ `
 
     :host {
       width: 60%;
+      min-width: 300px;
       height: 50%;
+      min-height: 500px;
       display: grid;
       grid-template-columns: 1fr;
       grid-template-rows: 60px 1fr 60px;
@@ -37,6 +39,10 @@ const style = /*css*/ `
   .Completed{
       color: #9e9e9e;
       text-decoration: line-through;
+    }
+
+    todo-item:nth-child(even){
+        background: #f7f5f5;
     }
     `;
 

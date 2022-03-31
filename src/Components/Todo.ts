@@ -7,10 +7,7 @@ const style = /*css*/ `
         height: 50px;
     }
 
-    :host .Completed{
-      color: #d4d4d4;
-      text-decoration: strike-through;
-    }
+
     
     .Todo{
         width: 100%;
@@ -25,15 +22,8 @@ const style = /*css*/ `
         font-size: .9em;
         cursor: pointer
     }
-
-    .Todo .Completed{
-      color: #d4d4d4;
-      text-decoration: strike-through;
-    }
-
-    .Todo:nth-child(odd){
-        background: #f5f5f5;
-    }
+   
+  
 
     .Todo:hover{
         background: #f7f7f7;
