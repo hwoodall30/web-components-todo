@@ -70,11 +70,15 @@ export class TodoInput extends Base {
       if (!this._root!.querySelector("input")!.value) return;
       const input = this._root!.querySelector("input") as HTMLInputElement;
       const value = input.value;
+      const completed = false;
       this.dispatchEvent(
         new CustomEvent("add-todo", {
           bubbles: true,
           composed: true,
-          detail: value,
+          detail: {
+            value,
+            completed,
+          },
         })
       );
       input.value = "";

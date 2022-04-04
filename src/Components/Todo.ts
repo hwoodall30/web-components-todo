@@ -1,4 +1,5 @@
 import Base from "./Base";
+import { TodoStore } from "../Todos/todos";
 
 const style = /*css*/ `
     :host {
@@ -61,14 +62,18 @@ const content = /*html*/ `
 
 export class Todo extends Base {
   _root: ShadowRoot;
-  _render = this.render.bind(this);
+  _todos: any = new TodoStore().todos;
 
   constructor() {
     super();
+
     this.render(style, content);
     this._root = this.attachShadow({ mode: "open" });
     this._root!.appendChild(this.template.content.cloneNode(true));
+  }
 
+  connectedCallback() {
+    // Click event on span (delete) element to dispatch delete-todo event
     this._root.querySelector("span")!.addEventListener("click", (e) => {
       e.preventDefault();
       this.dispatchEvent(
@@ -80,7 +85,40 @@ export class Todo extends Base {
       );
     });
 
+    //click event on todo to dispatch complete-todo event and set todo as completed
     this._root.querySelector(".Todo")!.addEventListener("click", (e) => {
+      e.preventDefault();
+      this.dispatchEvent(
+        new CustomEvent("complete-todo", {
+          bubbles: true,
+          composed: true,
+          detail: this,
+        })
+      );
+    });
+  }
+  // Runs right after component is unmounted from dom
+  disconnectedCallback() {
+    this._root.querySelector("li")!.animate({
+      transform: ["translateX(100%)", "translateX(0%)"],
+    });
+
+    console.log("disconnected");
+
+    // Remove Click event on span (delete) element to dispatch delete-todo event
+    this._root.querySelector("span")!.removeEventListener("click", (e) => {
+      e.preventDefault();
+      this.dispatchEvent(
+        new CustomEvent("delete-todo", {
+          bubbles: true,
+          composed: true,
+          detail: this,
+        })
+      );
+    });
+
+    // Remove Click event on todo to dispatch complete-todo event and set todo as completed
+    this._root.querySelector(".Todo")!.removeEventListener("click", (e) => {
       e.preventDefault();
       this.dispatchEvent(
         new CustomEvent("complete-todo", {
