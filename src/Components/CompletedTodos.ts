@@ -1,4 +1,4 @@
-import Base from "./Base";
+import Base from './Base';
 
 const style = /*css*/ `
     :host {
@@ -24,20 +24,15 @@ const style = /*css*/ `
 
     `;
 
-const content = /*html*/ `
+const template = /*html*/ `
         <div class="Completed">
           <slot name="completed"></slot>
         </div>
         `;
 
 export class TodoCompleted extends Base {
-  _root: ShadowRoot;
-  _render = this.render.bind(this);
-
-  constructor() {
-    super();
-    this.render(style, content);
-    this._root = this.attachShadow({ mode: "open" });
-    this._root!.appendChild(this.template.content.cloneNode(true));
-  }
+	constructor() {
+		super();
+		this.render(style, template);
+	}
 }

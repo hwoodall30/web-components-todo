@@ -1,8 +1,8 @@
-import Base from "./Base";
-import { TodoCompleted } from "./CompletedTodos";
-import { Todo } from "./Todo";
-import { TodoInput } from "./TodoInput";
-import { TodoStore } from "../Todos/todos";
+import Base from './Base';
+import { TodoCompleted } from './CompletedTodos';
+import { Todo } from './Todo';
+import { TodoInput } from './TodoInput';
+import { TodoStore } from '../Todos/todos';
 
 /* ---------------------------------------------------------------------------------------------------- */
 /* ---------------------------------------------  Style  ---------------------------------------------- */
@@ -53,16 +53,16 @@ const style = /*css*/ `
 /* ---------------------------------------------------------------------------------------------------- */
 /* ---------------------------------------------  HTML  ----------------------------------------------- */
 /* ---------------------------------------------------------------------------------------------------- */
-const content = (todos: any) => /*html*/ `
+const template = (todos: any) => /*html*/ `
 <todo-input></todo-input>
 <ul>
  ${todos
-   .map((todo: any) => {
-     return `<todo-item>
+		.map((todo: any) => {
+			return `<todo-item>
               <div slot="value">${todo.value}</div>
      </todo-item>`;
-   })
-   .join("")}
+		})
+		.join('')}
 </ul>
 <todo-completed>
   <div slot="completed">Completed: 0</div>
@@ -73,77 +73,78 @@ const content = (todos: any) => /*html*/ `
 /* ---------------------------------------------  Script  --------------------------------------------- */
 /* ---------------------------------------------------------------------------------------------------- */
 export class TodoList extends Base {
-  _root: ShadowRoot;
-  _todos: any = new TodoStore().todos;
-  _todoListItem: string = ``;
+	_todos: any = new TodoStore().todos;
+	_todoListItem: string = ``;
+	constructor() {
+		super();
+		this.render(style, template(this._todos));
+	}
 
-  constructor() {
-    super();
+	// Runs when component is initialized
+	connectedCallback() {
+		// Add Todo Event Listener
+		this._shadow.querySelector('todo-input')!.addEventListener('add-todo', (e: any) => {
+			const todo = (e as CustomEvent).detail;
+			//@ts-ignore
+			this.addTodos(todo);
+			// this.render(style, template(this._todos));
+		});
 
-    this.render(style, content(this._todos));
-    this._root = this.attachShadow({ mode: "open" });
-    this._root!.appendChild(this.template.content.cloneNode(true));
-  }
+		// Delete Todo Event Listener
+		this.addEventListener('delete-todo', e => {
+			const todoItem = (e as CustomEvent).detail;
+			todoItem
+				.animate([{ opacity: 1 }, { opacity: 0 }], {
+					duration: 500,
+					fill: 'forwards',
+				})
+				.finished.then(() => {
+					const parent = todoItem.parentElement!;
+					const indexofChild = parent.children
+						? Array.from(parent.children).indexOf(todoItem)
+						: () => {};
+					this._todos.splice(indexofChild, 1);
+					todoItem.remove();
+					const completedTodos = this._shadow.querySelectorAll('.Completed')!.length;
+					this._shadow
+						.querySelector('todo-completed')!
+						.shadowRoot!.querySelector('div')!.innerText = `Completed: ${completedTodos}`;
+				});
+			// this.render(style, template(this._todos));
+		});
 
-  // Runs when component is initialized
-  connectedCallback() {
-    // Add Todo Event Listener
-    this._root.querySelector("todo-input")!.addEventListener("add-todo", (e) => {
-      const todo = (e as CustomEvent).detail;
-      //@ts-ignore
-      this.addTodos(todo);
-    });
+		//Complete Todo Event Listener
+		this.addEventListener('complete-todo', e => {
+			const todoItem = (e as CustomEvent).detail;
+			const parent = todoItem.parentElement!;
+			const indexofChild = Array.from(parent.children).indexOf(todoItem);
+			this._todos.map((todo: any) => {
+				if (indexofChild === this._todos.indexOf(todo)) {
+					todo.completed = !todo.completed;
+				}
+				return todo;
+			});
+			todoItem.classList.toggle('Completed');
+			const completedTodos = this._shadow.querySelectorAll('.Completed')!.length;
+			this._shadow
+				.querySelector('todo-completed')!
+				.shadowRoot!.querySelector('div')!.innerText = `Completed: ${completedTodos}`;
+		});
+	}
 
-    // Delete Todo Event Listener
-    this.addEventListener("delete-todo", (e) => {
-      const todoItem = (e as CustomEvent).detail;
-      todoItem
-        .animate([{ opacity: 1 }, { opacity: 0 }], {
-          duration: 500,
-          fill: "forwards",
-        })
-        .finished.then(() => {
-          const parent = todoItem.parentElement!;
-          const indexofChild = Array.from(parent.children).indexOf(todoItem);
-          this._todos.splice(indexofChild, 1);
-          todoItem.remove();
-          const completedTodos = this._root.querySelectorAll(".Completed")!.length;
-          this._root
-            .querySelector("todo-completed")!
-            .shadowRoot!.querySelector("div")!.innerText = `Completed: ${completedTodos}`;
-        });
-    });
-
-    //Complete Todo Event Listener
-    this.addEventListener("complete-todo", (e) => {
-      const todoItem = (e as CustomEvent).detail;
-      const parent = todoItem.parentElement!;
-      const indexofChild = Array.from(parent.children).indexOf(todoItem);
-      this._todos.map((todo: any) => {
-        if (indexofChild === this._todos.indexOf(todo)) {
-          todo.completed = !todo.completed;
-        }
-        return todo;
-      });
-      todoItem.classList.toggle("Completed");
-      const completedTodos = this._root.querySelectorAll(".Completed")!.length;
-      this._root.querySelector("todo-completed")!.shadowRoot!.querySelector("div")!.innerText = `Completed: ${completedTodos}`;
-    });
-  }
-
-  // Add Todo Function
-  addTodos(todo: any) {
-    this._todos.push({ id: this._todos.length + 1, value: todo.value, completed: todo.completed });
-    this._todoListItem = ``;
-    this._todoListItem = `<todo-item>
+	// Add Todo Function
+	addTodos(todo: any) {
+		this._todos.push({ id: this._todos.length + 1, value: todo.value, completed: todo.completed });
+		this._todoListItem = ``;
+		this._todoListItem = `<todo-item>
               <div slot="value">${todo.value}</div>
               </todo-item>`;
 
-    this._root.querySelector("ul")!.insertAdjacentHTML("beforeend", this._todoListItem);
-  }
+		this._shadow.querySelector('ul')!.insertAdjacentHTML('beforeend', this._todoListItem);
+	}
 }
 
 // Define custom elements used in this component
-customElements.define("todo-input", TodoInput);
-customElements.define("todo-item", Todo);
-customElements.define("todo-completed", TodoCompleted);
+customElements.define('todo-input', TodoInput);
+customElements.define('todo-item', Todo);
+customElements.define('todo-completed', TodoCompleted);

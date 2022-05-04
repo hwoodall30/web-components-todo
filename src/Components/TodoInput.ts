@@ -1,4 +1,4 @@
-import Base from "./Base";
+import Base from './Base';
 
 const style = /*css*/ `
     :host {
@@ -48,7 +48,7 @@ const style = /*css*/ `
     
     `;
 
-const content = /*html*/ `
+const template = /*html*/ `
         <form>
             <input type="text" placeholder="What needs to be done?" autofocus>
             <button>Add</button>
@@ -56,32 +56,27 @@ const content = /*html*/ `
         `;
 
 export class TodoInput extends Base {
-  _root: ShadowRoot;
-  _render = this.render.bind(this);
+	constructor() {
+		super();
+		this.render(style, template);
 
-  constructor() {
-    super();
-    this.render(style, content);
-    this._root = this.attachShadow({ mode: "open" });
-    this._root!.appendChild(this.template.content.cloneNode(true));
-
-    this._root!.querySelector("form")!.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (!this._root!.querySelector("input")!.value) return;
-      const input = this._root!.querySelector("input") as HTMLInputElement;
-      const value = input.value;
-      const completed = false;
-      this.dispatchEvent(
-        new CustomEvent("add-todo", {
-          bubbles: true,
-          composed: true,
-          detail: {
-            value,
-            completed,
-          },
-        })
-      );
-      input.value = "";
-    });
-  }
+		this._shadow!.querySelector('form')!.addEventListener('submit', (e: any) => {
+			e.preventDefault();
+			if (!this._shadow!.querySelector('input')!.value) return;
+			const input = this._shadow!.querySelector('input') as HTMLInputElement;
+			const value = input.value;
+			const completed = false;
+			this.dispatchEvent(
+				new CustomEvent('add-todo', {
+					bubbles: true,
+					composed: true,
+					detail: {
+						value,
+						completed,
+					},
+				})
+			);
+			input.value = '';
+		});
+	}
 }
